@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Form, InputGroup, Button } from "react-bootstrap";
 import { useConversations } from "../contexts/ConversationsProvider";
 
@@ -7,15 +7,15 @@ export default function OpenConversation() {
   const { sendMessage, selectedConversation } = useConversations();
 
   // focus on the new message when enough messages to scroll
-  const lastMessageRef = useRef()
-  const inputRef = useRef()
 
-  useEffect(() => {
-    if (lastMessageRef.current) {
-      lastMessageRef.current.scrollIntoView({ smooth: true })
+  const inputRef = useRef()
+  const setRef = useCallback(node => {
+    if (node) {
+      node.scrollIntoView({ smooth: true })
     }
-    inputRef.current.focus()
-  }, [lastMessageRef.current])
+  }, [])
+
+
   const handleSubmit = (e) => {
     e.preventDefault();
     sendMessage(
@@ -26,6 +26,8 @@ export default function OpenConversation() {
     inputRef.current.focus()
   };
 
+  useEffect(() => inputRef.current.focus())
+
   return (
     <div className="d-flex flex-column flex-grow-1">
       <div className="flex-grow-1 overflow-auto">
@@ -34,7 +36,7 @@ export default function OpenConversation() {
             const lastMessage = selectedConversation.messages.length - 1 === index
             return (
               <div
-                ref={lastMessage ? lastMessageRef : null}
+                ref={lastMessage ? setRef : null}
                 key={index} className={`my-1 d-flex flex-column ${message.fromMe ? "align-self-end" : "border"
                   }`}>
                 <div
