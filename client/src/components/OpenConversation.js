@@ -7,7 +7,6 @@ export default function OpenConversation() {
   const { sendMessage, selectedConversation } = useConversations();
 
   // focus on the new message when enough messages to scroll
-
   const inputRef = useRef()
   const setRef = useCallback(node => {
     if (node) {
