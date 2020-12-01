@@ -10,6 +10,6 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"socket.io": "^3.0.3"
+		"socket.io": "^2.3.0"
 	}
 }

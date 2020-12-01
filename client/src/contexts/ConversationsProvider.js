@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react'
-import { useSocket } from "./SocketProvider"
-import useLocalStorage from '../hooks/useLocalStorage'
-import { useContacts } from './ContactsProvider'
+import useLocalStorage from '../hooks/useLocalStorage';
+import { useContacts } from './ContactsProvider';
+import { useSocket } from './SocketProvider';
 
 const ConversationsContext = React.createContext()
 
@@ -9,24 +9,23 @@ export function useConversations() {
   return useContext(ConversationsContext)
 }
 
-
 export function ConversationsProvider({ id, children }) {
   const [conversations, setConversations] = useLocalStorage('conversations', [])
   const [selectedConversationIndex, setSelectedConversationIndex] = useState(0)
   const { contacts } = useContacts()
   const socket = useSocket()
 
-  const createConversation = (recipients) => {
-    setConversations(prevConversations => [...prevConversations, { recipients, messages: [] }])
+  function createConversation(recipients) {
+    setConversations(prevConversations => {
+      return [...prevConversations, { recipients, messages: [] }]
+    })
   }
 
   const addMessageToConversation = useCallback(({ recipients, text, sender }) => {
-    console.log('{ recipients, text, sender }', { recipients, text, sender })
     setConversations(prevConversations => {
-      let madeChange = false;
+      let madeChange = false
       const newMessage = { sender, text }
       const newConversations = prevConversations.map(conversation => {
-        // a new message to the existing conversation
         if (arrayEquality(conversation.recipients, recipients)) {
           madeChange = true
           return {
@@ -34,7 +33,7 @@ export function ConversationsProvider({ id, children }) {
             messages: [...conversation.messages, newMessage]
           }
         }
-        // take the new message and create a conversation
+
         return conversation
       })
 
@@ -46,21 +45,20 @@ export function ConversationsProvider({ id, children }) {
           { recipients, messages: [newMessage] }
         ]
       }
-
     })
   }, [setConversations])
 
   useEffect(() => {
-    if (!socket) return
+    if (socket == null) return
 
-    socket.on("receive-message", addMessageToConversation)
+    socket.on('receive-message', addMessageToConversation)
 
-    return () => socket.off("receive-message")
+    return () => socket.off('receive-message')
   }, [socket, addMessageToConversation])
 
+  function sendMessage(recipients, text) {
+    socket.emit('send-message', { recipients, text })
 
-  const sendMessage = (recipients, text) => {
-    socket.emit("send-message", { recipients, text })
     addMessageToConversation({ recipients, text, sender: id })
   }
 
@@ -78,22 +76,20 @@ export function ConversationsProvider({ id, children }) {
         return contact.id === message.sender
       })
       const name = (contact && contact.name) || message.sender
-      const fromMe = id === message.sender;
-
+      const fromMe = id === message.sender
       return { ...message, senderName: name, fromMe }
     })
 
     const selected = index === selectedConversationIndex
-
     return { ...conversation, messages, recipients, selected }
   })
 
   const value = {
     conversations: formattedConversations,
-    selectConversationIndex: setSelectedConversationIndex,
     selectedConversation: formattedConversations[selectedConversationIndex],
-    createConversation,
-    sendMessage
+    sendMessage,
+    selectConversationIndex: setSelectedConversationIndex,
+    createConversation
   }
 
   return (
@@ -101,11 +97,9 @@ export function ConversationsProvider({ id, children }) {
       {children}
     </ConversationsContext.Provider>
   )
-
 }
 
-
-const arrayEquality = (a, b) => {
+function arrayEquality(a, b) {
   if (a.length !== b.length) return false
 
   a.sort()

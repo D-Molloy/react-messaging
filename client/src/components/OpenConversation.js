@@ -1,31 +1,25 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Form, InputGroup, Button } from "react-bootstrap";
-import { useConversations } from "../contexts/ConversationsProvider";
+import React, { useState, useCallback } from 'react'
+import { Form, InputGroup, Button } from 'react-bootstrap'
+import { useConversations } from '../contexts/ConversationsProvider';
 
 export default function OpenConversation() {
-  const [text, setText] = useState("");
-  const { sendMessage, selectedConversation } = useConversations();
-
-  // focus on the new message when enough messages to scroll
-  const inputRef = useRef()
+  const [text, setText] = useState('')
   const setRef = useCallback(node => {
     if (node) {
       node.scrollIntoView({ smooth: true })
     }
   }, [])
+  const { sendMessage, selectedConversation } = useConversations()
 
+  function handleSubmit(e) {
+    e.preventDefault()
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
     sendMessage(
-      selectedConversation.recipients.map((r) => r.id),
+      selectedConversation.recipients.map(r => r.id),
       text
-    );
-    setText("");
-    inputRef.current.focus()
-  };
-
-  useEffect(() => inputRef.current.focus())
+    )
+    setText('')
+  }
 
   return (
     <div className="d-flex flex-column flex-grow-1">
@@ -36,17 +30,18 @@ export default function OpenConversation() {
             return (
               <div
                 ref={lastMessage ? setRef : null}
-                key={index} className={`my-1 d-flex flex-column ${message.fromMe ? "align-self-end" : "border"
-                  }`}>
+                key={index}
+                className={`my-1 d-flex flex-column ${message.fromMe ? 'align-self-end align-items-end' : 'align-items-start'}`}
+              >
                 <div
-                  className={`rounded px-3 py-2 ${message.fromMe ? "bg-primary text-white" : "border"
-                    }`}
-                >
+                  className={`rounded px-2 py-1 ${message.fromMe ? 'bg-primary text-white' : 'border'}`}>
                   {message.text}
                 </div>
-                <div className={`text-muted small ${message.fromMe ? "text-right" : ""}`}>{message.fromMe ? "You" : message.senderName}</div>
+                <div className={`text-muted small ${message.fromMe ? 'text-right' : ''}`}>
+                  {message.fromMe ? 'You' : message.senderName}
+                </div>
               </div>
-            );
+            )
           })}
         </div>
       </div>
@@ -54,13 +49,11 @@ export default function OpenConversation() {
         <Form.Group className="m-2">
           <InputGroup>
             <Form.Control
-              ref={inputRef}
               as="textarea"
               required
               value={text}
-              placeholder="Enter a message..."
-              onChange={(e) => setText(e.target.value)}
-              style={{ height: 75, resize: "none" }}
+              onChange={e => setText(e.target.value)}
+              style={{ height: '75px', resize: 'none' }}
             />
             <InputGroup.Append>
               <Button type="submit">Send</Button>
@@ -69,5 +62,5 @@ export default function OpenConversation() {
         </Form.Group>
       </Form>
     </div>
-  );
+  )
 }

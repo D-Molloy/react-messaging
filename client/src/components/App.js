@@ -1,13 +1,16 @@
+import React from 'react'
+import Login from './Login'
 import useLocalStorage from '../hooks/useLocalStorage';
-import Login from "./Login";
 import Dashboard from './Dashboard'
-import { ContactsProvider } from '../contexts/ContactsProvider';
+import { ContactsProvider } from '../contexts/ContactsProvider'
 import { ConversationsProvider } from '../contexts/ConversationsProvider';
 import { SocketProvider } from '../contexts/SocketProvider';
+
 function App() {
-  const [id, setId] = useLocalStorage("id")
+  const [id, setId] = useLocalStorage('id')
+
   const dashboard = (
-    <SocketProvider value={id}>
+    <SocketProvider id={id}>
       <ContactsProvider>
         <ConversationsProvider id={id}>
           <Dashboard id={id} />
@@ -15,6 +18,7 @@ function App() {
       </ContactsProvider>
     </SocketProvider>
   )
+
   return (
     id ? dashboard : <Login onIdSubmit={setId} />
   )
